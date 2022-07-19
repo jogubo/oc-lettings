@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from .views import index
+from layout.views import index
 from lettings.views import lettings_index, letting
 from profiles.views import profiles_index, profile
 
