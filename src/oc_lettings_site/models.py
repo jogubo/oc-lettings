@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 
 class Address(models.Model):
+
     number = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     street = models.CharField(max_length=64)
     city = models.CharField(max_length=64)
@@ -18,6 +19,9 @@ class Address(models.Model):
         max_length=3,
         validators=[MinLengthValidator(3)]
     )
+
+    class Meta:
+        verbose_name_plural = 'Addresses'
 
     def __str__(self):
         return f'{self.number} {self.street}'
