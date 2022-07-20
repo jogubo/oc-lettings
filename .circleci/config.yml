@@ -12,8 +12,11 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: Run tests
-          command: pytest src
+          name: Linting
+          command: flake8
+      - run:
+          name: Tests
+          command: pytest
 
 workflows:
   sample:
