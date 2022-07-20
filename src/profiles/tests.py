@@ -27,7 +27,7 @@ class ProfilesTest(TestCase):
     def test_index_page(self):
         response = self.client.get(reverse('profiles_index'))
         assert response.status_code == 200
-        assert b"<title>Profiles</title>" in response.content
+        assert b'<title>Profiles</title>' in response.content
         assert self.profile.user.username.encode('utf-8') in response.content
 
     def test_profile_page(self):

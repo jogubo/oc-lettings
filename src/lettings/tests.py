@@ -28,13 +28,13 @@ class LettingTest(TestCase):
     def test_index_page(self):
         response = self.client.get(reverse('lettings_index'))
         assert response.status_code == 200
-        assert b"<title>Lettings</title>" in response.content
+        assert b'<title>Lettings</title>' in response.content
         assert self.letting.title.encode('utf-8') in response.content
 
     def test_letting_page(self):
         response = self.client.get(reverse('letting', args=[self.letting.pk]))
         assert response.status_code == 200
         assert self.letting.title.encode('utf-8') in response.content
-        assert self.letting.address.street.encode("utf-8") in response.content
-        assert self.letting.address.city.encode("utf-8") in response.content
-        assert self.letting.address.state.encode("utf-8") in response.content
+        assert self.letting.address.street.encode('utf-8') in response.content
+        assert self.letting.address.city.encode('utf-8') in response.content
+        assert self.letting.address.state.encode('utf-8') in response.content
