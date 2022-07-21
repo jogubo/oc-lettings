@@ -12,4 +12,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY src .
 
-CMD gunicorn --bind 0.0.0.0:$PORT config.wsgi:application 
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind", ":8000", "config.wsgi:application"] 

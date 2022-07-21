@@ -5,25 +5,19 @@ orbs:
   heroku: circleci/heroku@1.2.6
 
 jobs:
-  tests:
+  run-tests:
     docker:
       - image: cimg/python:3.10.2
     steps:
       - checkout
       - python/install-packages:
           pkg-manager: pip
-      - run:
-          name: Linting check
-          command: flake8
-      - run:
-          name: Run tests
-          command: pytest
-  build-and-deploy:
-    docker:
-      - image: cimg/base:2022.06
+      - run: flake8
+      - run: pytest
+  build-docker-image:
+    machine:
+      image: ubuntu-2204:2022.04.2
     steps:
-      - setup_remote_docker:
-          version: 20.10.14
       - checkout
       - run:
           name: Build Docker Image
@@ -35,20 +29,28 @@ jobs:
             docker tag $DOCKER_USER/oc-lettings:$CIRCLE_SHA1 $DOCKER_USER/oc-lettings:latest
             docker push $DOCKER_USER/oc-lettings:$CIRCLE_SHA1
             docker push $DOCKER_USER/oc-lettings:latest
+  deploy-on-heroku:
+    executor: heroku/default
+    steps:
+      - checkout
       - heroku/install
-      - run: heroku container:login
-      - heroku/push-docker-image:
-          process-types: web
-      - heroku/release-docker-image:
-          process-types: web
+      - heroku/deploy-via-git:
+          force: true
+          maintenance-mode: true
 
 workflows:
   main:
     jobs:
-      - tests
-      - build-and-deploy:
+      - run-tests
+      - build-docker-image:
           requires:
-            - tests
+            - run-tests
+          filters:
+            branches:
+              only: master
+      - deploy-on-heroku:
+          requires:
+            - build-docker-image
           filters:
             branches:
               only: master
