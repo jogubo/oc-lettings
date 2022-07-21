@@ -1,3 +1,7 @@
+# Docker
+```shell
+docker run -d -p 8000:8000 -e PORT=8000 jogubo/oc-lettings
+```
 # DB Migration
 If you use old database, you have to ignore the initial migrations for
 `lettings` and `profiles`

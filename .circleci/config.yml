@@ -5,7 +5,7 @@ orbs:
   heroku: circleci/heroku@1.2.6
 
 jobs:
-  test:
+  tests:
     docker:
       - image: cimg/python:3.10.2
     steps:
@@ -18,10 +18,12 @@ jobs:
       - run:
           name: Run tests
           command: pytest
-  build:
-    machine:
-      image: ubuntu-2204:2022.04.2
+  build-and-deploy:
+    docker:
+      - image: cimg/base:2022.06
     steps:
+      - setup_remote_docker:
+          version: 20.10.14
       - checkout
       - run:
           name: Build Docker Image
@@ -33,11 +35,20 @@ jobs:
             docker tag $DOCKER_USER/oc-lettings:$CIRCLE_SHA1 $DOCKER_USER/oc-lettings:latest
             docker push $DOCKER_USER/oc-lettings:$CIRCLE_SHA1
             docker push $DOCKER_USER/oc-lettings:latest
+      - heroku/install
+      - run: heroku container:login
+      - heroku/push-docker-image:
+          process-types: web
+      - heroku/release-docker-image:
+          process-types: web
 
 workflows:
-  test:
+  main:
     jobs:
-      - test
-      - heroku/deploy-via-git:
-          maintenance-mode: true
-          force: true
+      - tests
+      - build-and-deploy:
+          requires:
+            - tests
+          filters:
+            branches:
+              only: master
