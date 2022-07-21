@@ -19,14 +19,14 @@ jobs:
           command: pytest
   build:
     machine:
-     image: ubuntu-2204:2022.04.2
+      image: ubuntu-2204:2022.04.2
     steps:
       - checkout
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
 
-      - run: docker build -t $DOCKER_USER/oc-lettings:$CIRCLE_BRANCH .
+      - run: docker build -t $DOCKER_USER/oc-lettings:$CIRCLE_SHA1 .
 
-      - run: docker push $DOCKER_USER/oc-lettings:$CIRCLE_BRANCH
+      - run: docker push $DOCKER_USER/oc-lettings:$CIRCLE_SHA1
 
 workflows:
   sample:
