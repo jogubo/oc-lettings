@@ -34,9 +34,10 @@ jobs:
             docker push $DOCKER_USER/oc-lettings:$CIRCLE_SHA1
             docker push $DOCKER_USER/oc-lettings:latest
 
-
 workflows:
-  sample:
+  test:
     jobs:
       - test
-      - build
+      - heroku/deploy-via-git:
+          maintenance-mode: true
+          force: true
