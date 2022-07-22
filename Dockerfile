@@ -10,8 +10,10 @@ COPY requirements.txt .
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+COPY gunicorn.config.py .
+
 COPY src .
 
-EXPOSE 8000
+ENTRYPOINT ["gunicorn"] 
 
-CMD ["gunicorn", "--bind", ":8000", "config.wsgi:application"] 
+CMD ["-c", "./gunicorn.config.py", "config.wsgi:application"] 
