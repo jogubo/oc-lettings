@@ -14,6 +14,8 @@ COPY gunicorn.config.py .
 
 COPY src .
 
+RUN python manage.py collectstatic
+
 ENTRYPOINT ["gunicorn"] 
 
 CMD ["-c", "./gunicorn.config.py", "config.wsgi:application"] 

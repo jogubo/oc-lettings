@@ -1,7 +1,12 @@
 # Docker
 ```shell
-docker run -d -p 8000:8000 -e PORT=8000 jogubo/oc-lettings
+docker run -d -p 80:8000 jogubo/oc-lettings
 ```
+You can change port and set in debug mode with environment variables
+```shell
+docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 jogubo/oc-lettings
+```
+
 # DB Migration
 If you use old database, you have to ignore the initial migrations for
 `lettings` and `profiles`
@@ -9,6 +14,7 @@ If you use old database, you have to ignore the initial migrations for
 python manage.py migrate lettings 0001 --fake
 python manage.py migrate profiles 0001 --fake
 ```
+
 ## Résumé
 
 Site web d'Orange County Lettings
