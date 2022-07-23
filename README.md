@@ -1,10 +1,11 @@
 # Docker
+You must use your secret key with an environment variable or an .env file
 ```shell
-docker run -d -p 80:8000 jogubo/oc-lettings
+docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
 ```
 You can change port and set in debug mode with environment variables
 ```shell
-docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 jogubo/oc-lettings
+docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 -e DJANGO_SECRET_KEY='YOUR_KEY' jogubo/oc-lettings
 ```
 
 # DB Migration
