@@ -1,4 +1,4 @@
-FROM python:3.10.5-slim-bullseye AS oc-lettings
+FROM python:3.10.5-alpine AS oc-lettings
 
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -10,11 +10,11 @@ COPY requirements.txt .
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-COPY gunicorn.config.py .
-
 COPY src .
 
 RUN python manage.py collectstatic
+
+COPY gunicorn.config.py .
 
 ENTRYPOINT ["gunicorn"] 
 
