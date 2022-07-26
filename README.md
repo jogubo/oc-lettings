@@ -1,95 +1,102 @@
-# Docker
-You must use your secret key with an environment variable or an .env file
+# Orange Country Lettings
+
+## Installation et utilisation en local
+
+### Avec python
+
+#### Prérequis
+
+- Git
+- Python 3
+
+#### Mettre en place l'environnement
+
 ```shell
-docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
-```
-You can change port and set in debug mode with environment variables
-```shell
-docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 -e DJANGO_SECRET_KEY='YOUR_KEY' jogubo/oc-lettings
+git clone https://github.com/jogubo/oc-lettings.git
+cd oc-lettings
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements
 ```
 
-# DB Migration
-If you use old database, you have to ignore the initial migrations for
-`lettings` and `profiles`
+####  Base de données et migration
+
+La BDD présente sur ce dépôt ne necessite aucune intervention.
+
+Si vous souhaitez utiliser la BDD du projet original, il est nécessaire d'ignorer les migrations initiales 
+pour `lettings` et `profiles`.
+Si vous souhaitez créer une nouvelle BDD, vous pouvez ingorer cette étape et réaliser une
+migrations normalement.
 ```shell
 python manage.py migrate lettings 0001 --fake
 python manage.py migrate profiles 0001 --fake
 ```
 
-## Résumé
+#### Définir les variables d'environnement
 
-Site web d'Orange County Lettings
+Une clef secrète est indispensable pour lancer le serveur, cette clef doit être définie en
+variable d'environnement:
+```shell
+export DJANGO_SECRET_KEY='YOUR_SECRET_KEY'
+```
 
-## Développement local
+Vous pouvez générer une clef et l'enregistrer dans un fichier en une commande:
+```shell
+python -c "from django.core.management.utils import get_random_secret_key; print(f'DJANGO_SECRET_KEY={get_random_secret_key()}')" > .env
+cat .env
+```
 
-### Prérequis
+Par défaut, la configuration est pour une utilsation en production, le mode débogage peut être activé
+avec la variable `DEBUG=1`
 
-- Compte GitHub avec accès en lecture à ce repository
-- Git CLI
-- SQLite3 CLI
-- Interpréteur Python, version 3.6 ou supérieure
 
-Dans le reste de la documentation sur le développement local, il est supposé que la commande `python` de votre OS shell exécute l'interpréteur Python ci-dessus (à moins qu'un environnement virtuel ne soit activé).
+#### Lancer le serveur
 
-### macOS / Linux
+Il est conseillé d'utiliser `gunicorn` pour une utilsation en production:
+```shell
+gunicorn --chdir src config.wsgi --log-file -
+```
 
-#### Cloner le repository
+Pour du développement, la commande habituelle pour lancer le server:
+```shell
+python src/manage.py runserver
+```
 
-- `cd /path/to/put/project/in`
-- `git clone https://github.com/OpenClassrooms-Student-Center/Python-OC-Lettings-FR.git`
 
-#### Créer l'environnement virtuel
+### Avec Docker
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `python -m venv venv`
-- `apt-get install python3-venv` (Si l'étape précédente comporte des erreurs avec un paquet non trouvé sur Ubuntu)
-- Activer l'environnement `source venv/bin/activate`
-- Confirmer que la commande `python` exécute l'interpréteur Python dans l'environnement virtuel
-`which python`
-- Confirmer que la version de l'interpréteur Python est la version 3.6 ou supérieure `python --version`
-- Confirmer que la commande `pip` exécute l'exécutable pip dans l'environnement virtuel, `which pip`
-- Pour désactiver l'environnement, `deactivate`
+#### Prérequis
 
-#### Exécuter le site
+- Docker
+- Git (si vous souhaitez construire votre image)
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pip install --requirement requirements.txt`
-- `python manage.py runserver`
-- Aller sur `http://localhost:8000` dans un navigateur.
-- Confirmer que le site fonctionne et qu'il est possible de naviguer (vous devriez voir plusieurs profils et locations).
+#### Récupérer une image
 
-#### Linting
+##### Directement depuis Docker Hub
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `flake8`
+Le tag `latest` correspond au dernier commit sur master, les autres tag correspondent
+un hash du commit.
+```shell
+docker pull jogubo/oc-lettings:latest
+```
 
-#### Tests unitaires
+#### Construire l´image depuis les sources
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pytest`
+```shell
+git clone https://github.com/jogubo/oc-lettings.git
+cd oc-lettings
+docker build -t oc-lettings .
+```
 
-#### Base de données
+#### Lancer le serveur
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- Ouvrir une session shell `sqlite3`
-- Se connecter à la base de données `.open oc-lettings-site.sqlite3`
-- Afficher les tables dans la base de données `.tables`
-- Afficher les colonnes dans le tableau des profils, `pragma table_info(Python-OC-Lettings-FR_profile);`
-- Lancer une requête sur la table des profils, `select user_id, favorite_city from
-  Python-OC-Lettings-FR_profile where favorite_city like 'B%';`
-- `.quit` pour quitter
+Pour utiliser l'image Docker, il faut spécifier une clef secrète en argument.
+Il est également possible de changer le port et/ou lancer Django en mode débogage
+```shell
+docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 -e DJANGO_SECRET_KEY='YOUR_KEY' jogubo/oc-lettings
+```
 
-#### Panel d'administration
-
-- Aller sur `http://localhost:8000/admin`
-- Connectez-vous avec l'utilisateur `admin`, mot de passe `Abc1234!`
-
-### Windows
-
-Utilisation de PowerShell, comme ci-dessus sauf :
-
-- Pour activer l'environnement virtuel, `.\venv\Scripts\Activate.ps1` 
-- Remplacer `which <my-command>` par `(Get-Command <my-command>).Path`
+Docker permet aussi d'utiliser un fichier `.env`.
+```shell
+docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
+```
