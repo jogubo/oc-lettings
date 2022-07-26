@@ -125,8 +125,20 @@ Forkez ce projet.
 Importez le projet dans CircleCI, une fois dans le projet, il faut en premier lieu choisir d'utiliser le fichier
 de configuration présent dans la fichier `.circleci/config.yml` puis définir les variables d'environnement:
 **Project Settings > Environment Variables > Add Environment Variable**:
-- `DJANGO_SECRET_KEY`: elle est necessaire lancer le serveur pendant les tests d'intégration, n'utilisez pas la clef de production
+- `DJANGO_SECRET_KEY`: utile pour les tests d'intégration, n'utilisez pas votre clef de production
 - `DOCKER_USER`: votre ID sur Docker Hub
 - `DOCKER_PASS`: votre token Docker Hub
 - `HEROKU_API_KEY`: Votre API Key Heroku
 - `HEROKU_APP_NAME`: Le nom de votre application sur Heroku
+
+Le pipeline se lancent automatiquement à chaque nouveau commit.
+```
+branch (all)
+    |- Tests
+
+branch (master)
+    |- Tests
+        |- Build Docker Image
+            |- Publish on Docker Hub
+            |- Deploy on Heroku
+```
