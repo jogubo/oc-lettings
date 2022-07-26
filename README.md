@@ -112,7 +112,7 @@ le même workflow, voici les prérequis:
 - Compte CircleCI
 - Compte Docker Hub
 - Compte Heroku
-- Compte Sentry
+- Compte Sentry (facultatif)
 
 ### Configuration
 
@@ -120,10 +120,38 @@ le même workflow, voici les prérequis:
 
 Forkez ce projet.
 
+#### Docker Hub
+
+Récupérer un token d'accès. Il est possible de définir son mot de passe Docker Hub
+en variable sur CircleCI, mais préférez l'utilisation de token pour cet usage:
+**Account Settings > Security > New Access Token**
+
+<img src="./img/dockerhub-token.png"/>
+
+#### Sentry
+
+La configuration permet d'utiliser Sentry pour la journalisation, vous pouvez y créer un
+compter pour récupérer votre clef:
+**Settings > Client Key (DSN) > DSN**
+
+<img src="./img/sentry-dsn.png"/>
+
+#### Heroku
+
+Créez une application : **New > Create New App**
+Puis définir les variables d'environnement de votre application:
+
+**Settings > Config Vars**:
+- `DJANGO_SECRET_KEY`: La clef secrète que vous utilisez en production 
+- `SENTRY_DSN`: À renseigné si vous souhaitez récupérer les logs sur Sentry
+
+<img src="./img/heroku-env.png"/>
+
 #### CircleCI
 
 Importez le projet dans CircleCI, une fois dans le projet, il faut en premier lieu choisir d'utiliser le fichier
-de configuration présent dans la fichier `.circleci/config.yml` puis définir les variables d'environnement:
+de configuration présent dans la fichier `.circleci/config.yml` puis définir les variables d'environnement.
+
 **Project Settings > Environment Variables > Add Environment Variable**:
 - `DJANGO_SECRET_KEY`: utile pour les tests d'intégration, n'utilisez pas votre clef de production
 - `DOCKER_USER`: votre ID sur Docker Hub
@@ -131,7 +159,9 @@ de configuration présent dans la fichier `.circleci/config.yml` puis définir l
 - `HEROKU_API_KEY`: Votre API Key Heroku
 - `HEROKU_APP_NAME`: Le nom de votre application sur Heroku
 
-Le pipeline se lancent automatiquement à chaque nouveau commit.
+<img src="./img/circleci-env.png"/>
+
+Le pipeline se lance automatiquement à chaque nouveau commit.
 ```
 branch (all)
     |- Tests
