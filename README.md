@@ -80,7 +80,7 @@ un hash du commit.
 docker pull jogubo/oc-lettings:latest
 ```
 
-#### Construire l´image depuis les sources
+##### Construire l´image depuis les sources
 
 ```shell
 git clone https://github.com/jogubo/oc-lettings.git
@@ -100,3 +100,33 @@ Docker permet aussi d'utiliser un fichier `.env`.
 ```shell
 docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
 ```
+
+## CI/CD
+
+### Prérequis
+
+Ce repos dispose d'un fichier de configuration CircleCI, si vous souhaitez utiliser
+le même workflow, voici les prérequis:
+- Git
+- Compte GitHub
+- Compte CircleCI
+- Compte Docker Hub
+- Compte Heroku
+- Compte Sentry
+
+### Configuration
+
+#### GitHub
+
+Forkez ce projet.
+
+#### CircleCI
+
+Importez le projet dans CircleCI, une fois dans le projet, il faut en premier lieu choisir d'utiliser le fichier
+de configuration présent dans la fichier `.circleci/config.yml` puis définir les variables d'environnement:
+**Project Settings > Environment Variables > Add Environment Variable**:
+- `DJANGO_SECRET_KEY`: elle est necessaire lancer le serveur pendant les tests d'intégration, n'utilisez pas la clef de production
+- `DOCKER_USER`: votre ID sur Docker Hub
+- `DOCKER_PASS`: votre token Docker Hub
+- `HEROKU_API_KEY`: Votre API Key Heroku
+- `HEROKU_APP_NAME`: Le nom de votre application sur Heroku
