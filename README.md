@@ -17,6 +17,7 @@ cd oc-lettings
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements
+python src/manage.py collectstatic
 ```
 
 ####  Base de données et migration
