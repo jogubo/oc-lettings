@@ -28,14 +28,11 @@ class ProfilesTest(TestCase):
         response = self.client.get(reverse('profiles_index'))
         assert response.status_code == 200
         assert b'<title>Profiles</title>' in response.content
-        assert self.profile.user.username.encode('utf-8') in response.content
 
     def test_profile_page(self):
         response = self.client.get(
             reverse('profile', args=[self.profile.user.username])
         )
+        title = self.profile.user.username
         assert response.status_code == 200
-        assert self.profile.user.first_name.encode('utf-8') in response.content
-        assert self.profile.user.last_name.encode('utf-8') in response.content
-        assert self.profile.user.email.encode('utf-8') in response.content
-        assert self.profile.favorite_city.encode('utf-8') in response.content
+        assert f'<title>{title}</title>'.encode('utf-8') in response.content

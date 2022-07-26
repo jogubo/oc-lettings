@@ -1,95 +1,174 @@
-# Docker
-You must use your secret key with an environment variable or an .env file
+# Orange Country Lettings
+
+## Installation et utilisation en local
+
+### Avec python
+
+#### Prérequis
+
+- Git
+- Python 3
+
+#### Mettre en place l'environnement
+
 ```shell
-docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
-```
-You can change port and set in debug mode with environment variables
-```shell
-docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 -e DJANGO_SECRET_KEY='YOUR_KEY' jogubo/oc-lettings
+git clone https://github.com/jogubo/oc-lettings.git
+cd oc-lettings
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements
 ```
 
-# DB Migration
-If you use old database, you have to ignore the initial migrations for
-`lettings` and `profiles`
+####  Base de données et migration
+
+La BDD présente sur ce dépôt ne necessite aucune intervention.
+
+Si vous souhaitez utiliser la BDD du projet original, il est nécessaire d'ignorer les migrations initiales 
+pour `lettings` et `profiles`.
+Si vous souhaitez créer une nouvelle BDD, vous pouvez ingorer cette étape et réaliser une
+migrations normalement.
 ```shell
 python manage.py migrate lettings 0001 --fake
 python manage.py migrate profiles 0001 --fake
 ```
 
-## Résumé
+#### Définir les variables d'environnement
 
-Site web d'Orange County Lettings
+Une clef secrète est indispensable pour lancer le serveur, cette clef doit être définie en
+variable d'environnement:
+```shell
+export DJANGO_SECRET_KEY='YOUR_SECRET_KEY'
+```
 
-## Développement local
+Vous pouvez générer une clef et l'enregistrer dans un fichier en une commande:
+```shell
+python -c "from django.core.management.utils import get_random_secret_key; print(f'DJANGO_SECRET_KEY={get_random_secret_key()}')" > .env
+cat .env
+```
+
+Par défaut, la configuration est pour une utilsation en production, le mode débogage peut être activé
+avec la variable `DEBUG=1`
+
+
+#### Lancer le serveur
+
+Il est conseillé d'utiliser `gunicorn` pour une utilsation en production:
+```shell
+gunicorn --chdir src config.wsgi --log-file -
+```
+
+Pour du développement, la commande habituelle pour lancer le server:
+```shell
+python src/manage.py runserver
+```
+
+
+### Avec Docker
+
+#### Prérequis
+
+- Docker
+- Git (si vous souhaitez construire votre image)
+
+#### Récupérer une image
+
+##### Directement depuis Docker Hub
+
+Le tag `latest` correspond au dernier commit sur master, les autres tag correspondent
+un hash du commit.
+```shell
+docker pull jogubo/oc-lettings:latest
+```
+
+##### Construire l´image depuis les sources
+
+```shell
+git clone https://github.com/jogubo/oc-lettings.git
+cd oc-lettings
+docker build -t oc-lettings .
+```
+
+#### Lancer le serveur
+
+Pour utiliser l'image Docker, il faut spécifier une clef secrète en argument.
+Il est également possible de changer le port et/ou lancer Django en mode débogage
+```shell
+docker run -p 80:5000 -e PORT=5000 -e DEBUG=1 -e DJANGO_SECRET_KEY='YOUR_KEY' jogubo/oc-lettings
+```
+
+Docker permet aussi d'utiliser un fichier `.env`.
+```shell
+docker run -d -p 80:8000 --env-file .env jogubo/oc-lettings
+```
+
+## CI/CD
 
 ### Prérequis
 
-- Compte GitHub avec accès en lecture à ce repository
-- Git CLI
-- SQLite3 CLI
-- Interpréteur Python, version 3.6 ou supérieure
+Ce repos dispose d'un fichier de configuration CircleCI, si vous souhaitez utiliser
+le même workflow, voici les prérequis:
+- Git
+- Compte GitHub
+- Compte CircleCI
+- Compte Docker Hub
+- Compte Heroku
+- Compte Sentry (facultatif)
 
-Dans le reste de la documentation sur le développement local, il est supposé que la commande `python` de votre OS shell exécute l'interpréteur Python ci-dessus (à moins qu'un environnement virtuel ne soit activé).
+### Configuration
 
-### macOS / Linux
+#### GitHub
 
-#### Cloner le repository
+Forkez ce projet.
 
-- `cd /path/to/put/project/in`
-- `git clone https://github.com/OpenClassrooms-Student-Center/Python-OC-Lettings-FR.git`
+#### Docker Hub
 
-#### Créer l'environnement virtuel
+Récupérer un token d'accès. Il est possible de définir son mot de passe Docker Hub
+en variable sur CircleCI, mais préférez l'utilisation de token pour cet usage:
+**Account Settings > Security > New Access Token**
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `python -m venv venv`
-- `apt-get install python3-venv` (Si l'étape précédente comporte des erreurs avec un paquet non trouvé sur Ubuntu)
-- Activer l'environnement `source venv/bin/activate`
-- Confirmer que la commande `python` exécute l'interpréteur Python dans l'environnement virtuel
-`which python`
-- Confirmer que la version de l'interpréteur Python est la version 3.6 ou supérieure `python --version`
-- Confirmer que la commande `pip` exécute l'exécutable pip dans l'environnement virtuel, `which pip`
-- Pour désactiver l'environnement, `deactivate`
+<img src="./img/dockerhub-token.png"/>
 
-#### Exécuter le site
+#### Sentry
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pip install --requirement requirements.txt`
-- `python manage.py runserver`
-- Aller sur `http://localhost:8000` dans un navigateur.
-- Confirmer que le site fonctionne et qu'il est possible de naviguer (vous devriez voir plusieurs profils et locations).
+La configuration permet d'utiliser Sentry pour la journalisation, vous pouvez y créer un
+compter pour récupérer votre clef:
+**Settings > Client Key (DSN) > DSN**
 
-#### Linting
+<img src="./img/sentry-dsn.png"/>
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `flake8`
+#### Heroku
 
-#### Tests unitaires
+Créez une application : **New > Create New App**
+Puis définir les variables d'environnement de votre application:
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pytest`
+**Settings > Config Vars**:
+- `DJANGO_SECRET_KEY`: La clef secrète que vous utilisez en production 
+- `SENTRY_DSN`: À renseigné si vous souhaitez récupérer les logs sur Sentry
 
-#### Base de données
+<img src="./img/heroku-env.png"/>
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- Ouvrir une session shell `sqlite3`
-- Se connecter à la base de données `.open oc-lettings-site.sqlite3`
-- Afficher les tables dans la base de données `.tables`
-- Afficher les colonnes dans le tableau des profils, `pragma table_info(Python-OC-Lettings-FR_profile);`
-- Lancer une requête sur la table des profils, `select user_id, favorite_city from
-  Python-OC-Lettings-FR_profile where favorite_city like 'B%';`
-- `.quit` pour quitter
+#### CircleCI
 
-#### Panel d'administration
+Importez le projet dans CircleCI, une fois dans le projet, il faut en premier lieu choisir d'utiliser le fichier
+de configuration présent dans la fichier `.circleci/config.yml` puis définir les variables d'environnement.
 
-- Aller sur `http://localhost:8000/admin`
-- Connectez-vous avec l'utilisateur `admin`, mot de passe `Abc1234!`
+**Project Settings > Environment Variables > Add Environment Variable**:
+- `DJANGO_SECRET_KEY`: utile pour les tests d'intégration, n'utilisez pas votre clef de production
+- `DOCKER_USER`: votre ID sur Docker Hub
+- `DOCKER_PASS`: votre token Docker Hub
+- `HEROKU_API_KEY`: Votre API Key Heroku
+- `HEROKU_APP_NAME`: Le nom de votre application sur Heroku
 
-### Windows
+<img src="./img/circleci-env.png"/>
 
-Utilisation de PowerShell, comme ci-dessus sauf :
+Le pipeline se lance automatiquement à chaque nouveau commit.
+```
+branch (all)
+    |- Tests
 
-- Pour activer l'environnement virtuel, `.\venv\Scripts\Activate.ps1` 
-- Remplacer `which <my-command>` par `(Get-Command <my-command>).Path`
+branch (master)
+    |- Tests
+        |- Build Docker Image
+            |- Publish on Docker Hub
+            |- Deploy on Heroku
+```
